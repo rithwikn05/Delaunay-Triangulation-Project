@@ -12,8 +12,8 @@ This project implements the **Incremental Insertion** algorithm for Delaunay Tri
 
 | Flag | Category | Description |
 | :--- | :--- | :--- |
-| `--fast` | **Speed** | Runs the optimized insertion algorithm. |
-| `--slow` | **Speed** | Runs the walking algorithm (useful for debugging/visualization). |
+| `--fast` | **Speed** | Runs the History DAG. |
+| `--slow` | **Speed** | Runs the walking algorithm. |
 | `--randomized` | **Run Type** | Randomizes input order to maintain $O(n \log n)$ efficiency. |
 | `--ordered` | **Run Type** | Processes nodes in the original file order. |
 
