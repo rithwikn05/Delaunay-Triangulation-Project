@@ -1,10 +1,10 @@
-
 class QuarterEdge:
     __slots__ = ('next', 'data')
 
     def __init__(self):
         self.next = None
         self.data = None
+
 
 class EdgeRecord:
     __slots__ = ('q',)
@@ -18,23 +18,24 @@ class EdgeRef:
 
     def __init__(self, record, r=0):
         self._rec = record
-        self._r = r % 4
+        self._r = r & 3
 
     # Basic rotations
 
     @property
     def rot(self):
-        return EdgeRef(self._rec, (self._r + 1) % 4)
+        return EdgeRef(self._rec, (self._r + 1) & 3)
 
     @property
     def sym(self):
-        return EdgeRef(self._rec, (self._r + 2) % 4)
+        return EdgeRef(self._rec, (self._r + 2) & 3)
 
     @property
     def rot_inv(self):
-        return EdgeRef(self._rec, (self._r + 3) % 4)
+        return EdgeRef(self._rec, (self._r + 3) & 3)
 
     # Onext and derived traversals
+
     @property
     def onext(self):
         return self._rec.q[self._r].next
@@ -45,33 +46,48 @@ class EdgeRef:
 
     @property
     def oprev(self):
-        return self.rot.onext.rot
+        # rot.onext.rot
+        mid = self._rec.q[(self._r + 1) & 3].next
+        return EdgeRef(mid._rec, (mid._r + 1) & 3)
 
     @property
     def lnext(self):
-        return self.rot_inv.onext.rot
+        # rot_inv.onext.rot
+        mid = self._rec.q[(self._r + 3) & 3].next
+        return EdgeRef(mid._rec, (mid._r + 1) & 3)
 
     @property
     def lprev(self):
-        return self.onext.sym
+        # onext.sym
+        mid = self._rec.q[self._r].next
+        return EdgeRef(mid._rec, (mid._r + 2) & 3)
 
     @property
     def rnext(self):
-        return self.rot.onext.rot_inv
+        # rot.onext.rot_inv
+        mid = self._rec.q[(self._r + 1) & 3].next
+        return EdgeRef(mid._rec, (mid._r + 3) & 3)
 
     @property
     def rprev(self):
-        return self.sym.onext
+        # sym.onext
+        mid = self._rec.q[(self._r + 2) & 3].next
+        return EdgeRef(mid._rec, mid._r)
 
     @property
     def dnext(self):
-        return self.sym.onext.sym
+        # sym.onext.sym
+        mid = self._rec.q[(self._r + 2) & 3].next
+        return EdgeRef(mid._rec, (mid._r + 2) & 3)
 
     @property
     def dprev(self):
-        return self.rot_inv.onext.rot_inv
+        # rot_inv.onext.rot_inv
+        mid = self._rec.q[(self._r + 3) & 3].next
+        return EdgeRef(mid._rec, (mid._r + 3) & 3)
 
-    # Vertex Data
+    # Vertex data
+
     @property
     def org(self):
         return self._rec.q[self._r].data
@@ -82,53 +98,49 @@ class EdgeRef:
 
     @property
     def dest(self):
-        return self._rec.q[(self._r + 2) % 4].data
+        return self._rec.q[(self._r + 2) & 3].data
 
     @dest.setter
     def dest(self, val):
-        self._rec.q[(self._r + 2) % 4].data = val
+        self._rec.q[(self._r + 2) & 3].data = val
 
-    # Face DAG Data
+    # Face DAG data
+
     @property
     def left_face_data(self):
-        return self._rec.q[(self._r + 1) % 4].data
+        return self._rec.q[(self._r + 1) & 3].data
 
     @left_face_data.setter
     def left_face_data(self, val):
-        self._rec.q[(self._r + 1) % 4].data = val
+        self._rec.q[(self._r + 1) & 3].data = val
 
     @property
     def right_face_data(self):
-        return self._rec.q[(self._r + 3) % 4].data
+        return self._rec.q[(self._r + 3) & 3].data
 
     @right_face_data.setter
     def right_face_data(self, val):
-        self._rec.q[(self._r + 3) % 4].data = val
+        self._rec.q[(self._r + 3) & 3].data = val
 
     def equals(self, other):
         return self._rec is other._rec and self._r == other._r
 
     def __repr__(self):
-        org = self.org
-        dest = self.dest
-        return f"EdgeRef(r={self._r}, org={org}, dest={dest})"
+        return f"EdgeRef(r={self._r}, org={self.org}, dest={self.dest})"
 
 
-# Topological primitives: MakeEdge and Splice
+# Topological primitives
+
 def make_edge():
     rec = EdgeRecord()
     e0 = EdgeRef(rec, 0)
-    e1 = EdgeRef(rec, 1)
-    e2 = EdgeRef(rec, 2)
-    e3 = EdgeRef(rec, 3)
-    e0.onext = e0
-    e2.onext = e2
-    e1.onext = e3
-    e3.onext = e1
-
+    rec.q[0].next = e0
+    rec.q[2].next = EdgeRef(rec, 2)
+    rec.q[1].next = EdgeRef(rec, 3)
+    rec.q[3].next = EdgeRef(rec, 1)
     return e0
 
-# Connects or disconnects two edges
+
 def splice(a, b):
     alpha = a.onext.rot
     beta = b.onext.rot
@@ -141,7 +153,7 @@ def splice(a, b):
     alpha.onext = t3
     beta.onext = t4
 
-# Creates a new edge between two vertices
+
 def connect(a, b):
     e = make_edge()
     e.org = a.dest
@@ -150,12 +162,12 @@ def connect(a, b):
     splice(e.sym, b)
     return e
 
-# Detaches an edge from its neighbors
+
 def delete_edge(e):
     splice(e, e.oprev)
     splice(e.sym, e.sym.oprev)
 
-# Rotates the edge and connects it to another two vertices
+
 def swap(e):
     a = e.oprev
     b = e.sym.oprev
@@ -166,7 +178,7 @@ def swap(e):
     e.org = a.dest
     e.dest = b.dest
 
-# BFS that finds every edge in the triangulation
+
 def all_edges(start_edge):
     visited = set()
     queue = [start_edge if start_edge._r == 0 else EdgeRef(start_edge._rec, 0)]
@@ -180,18 +192,16 @@ def all_edges(start_edge):
         visited.add(rec_id)
         result.append(EdgeRef(e._rec, 0))
 
-        # Follow Onext rings for both primal directions
-        for start in [EdgeRef(e._rec, 0), EdgeRef(e._rec, 2)]:
+        for start in (EdgeRef(e._rec, 0), EdgeRef(e._rec, 2)):
             cur = start.onext
             while not cur.equals(start):
-                cid = id(cur._rec)
-                if cid not in visited:
+                if id(cur._rec) not in visited:
                     queue.append(EdgeRef(cur._rec, 0))
                 cur = cur.onext
 
     return result
 
-# Loops through all edges connected to a vertex
+
 def edges_around_vertex(e):
     start = e
     yield e
@@ -200,7 +210,7 @@ def edges_around_vertex(e):
         yield cur
         cur = cur.onext
 
-# Loops through three edges of a triangle
+
 def edges_around_face(e):
     start = e
     yield e

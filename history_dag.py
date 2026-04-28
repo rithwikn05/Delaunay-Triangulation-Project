@@ -1,22 +1,21 @@
+from predicates import orient2d
+
 class DAGNode:
     __slots__ = ('vertices', 'children', 'edge_ref')
 
     def __init__(self, v0, v1, v2, edge_ref=None):
         self.vertices = (v0, v1, v2)
         self.children = []
-        self.edge_ref = edge_ref 
+        self.edge_ref = edge_ref
 
     def is_leaf(self):
-        return len(self.children) == 0
+        return not self.children
 
     def contains_point(self, p):
         v0, v1, v2 = self.vertices
-        px, py = p[0], p[1]
-        
-        if (v0[0]-px)*(v1[1]-py) - (v0[1]-py)*(v1[0]-px) < -1e-9: return False
-        if (v1[0]-px)*(v2[1]-py) - (v1[1]-py)*(v2[0]-px) < -1e-9: return False
-        if (v2[0]-px)*(v0[1]-py) - (v2[1]-py)*(v0[0]-px) < -1e-9: return False
-        return True
+        return (orient2d(v0, v1, p) >= 0 and 
+                orient2d(v1, v2, p) >= 0 and 
+                orient2d(v2, v0, p) >= 0)
 
 
 class HistoryDAG:
@@ -43,12 +42,12 @@ class HistoryDAG:
     def split_triangle(self, parent_nodes, new_triangles):
         if not isinstance(parent_nodes, list):
             parent_nodes = [parent_nodes]
-            
+
         children = []
         for (nv0, nv1, nv2, eref) in new_triangles:
             child = self._make_child(nv0, nv1, nv2, eref)
             children.append(child)
-        
+
         for p in parent_nodes:
             if p:
                 self._remove_leaf(*p.vertices)
@@ -60,7 +59,7 @@ class HistoryDAG:
         for (nv0, nv1, nv2, eref) in new_triangles:
             child = self._make_child(nv0, nv1, nv2, eref)
             children.append(child)
-        
+
         if node_a:
             self._remove_leaf(*node_a.vertices)
             node_a.children.extend(children)
@@ -79,8 +78,12 @@ class HistoryDAG:
                     found = True
                     break
             if not found:
-                node = node.children[0]
-        return node
+                # DEBUG: Print the parent and all children that failed the test
+                print(f"\n[DAG FAIL] Point {p} in Parent {node.vertices}")
+                for i, c in enumerate(node.children):
+                    print(f"  Child {i} {c.vertices} -> CCW: {orient2d(*c.vertices) > 0}")
+                return node, -1
+        return node, 0
 
     def all_leaves(self):
         return list(self._leaf_map.values())

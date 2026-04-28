@@ -1,15 +1,3 @@
-"""
-Usage:
-    python test_delaunay.py [options]
-
-Options:
-    --node-dir DIR   Directory containing .node files (default: same dir as script)
-    --src-dir DIR    Directory containing .py source files (default: same dir as script)
-    --skip-large     Skip ttimeu100000 and ttimeu1000000
-    --skip-slow      Skip slow-mode runs
-    --seed N         Fix random seed (default: 42)
-"""
-
 import sys
 import os
 import time
