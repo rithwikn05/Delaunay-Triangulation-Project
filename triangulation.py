@@ -267,30 +267,3 @@ class DelaunayTriangulation:
                         queue.append(cur)
                     cur = cur.onext
         return result
-
-    def verify_delaunay(self):
-        bv = self._bv_set
-        bad = []
-        visited = set()
-
-        for e in self._all_reachable_edges():
-            rid = id(e._rec)
-            if rid in visited:
-                continue
-            visited.add(rid)
-
-            if e.org in bv or e.dest in bv:
-                continue
-
-            apex_l = e.lnext.dest
-            apex_r = e.sym.lnext.dest
-
-            if apex_l is None or apex_r is None:
-                continue
-            if apex_l in bv or apex_r in bv:
-                continue
-
-            if incircle(apex_l, e.org, e.dest, apex_r) > 0:
-                bad.append((e.org, e.dest, apex_l, apex_r))
-
-        return len(bad) == 0, bad

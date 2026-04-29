@@ -29,8 +29,6 @@ def main():
 
     parser.add_argument('--seed', type=int, default=None,
                         help='Random seed for reproducibility')
-    parser.add_argument('--verify', action='store_true',
-                        help='Verify Delaunay condition after triangulation')
 
     args = parser.parse_args()
 
@@ -54,10 +52,6 @@ def main():
     points, indices = read_node_file(node_file)
     print(f"  {len(points)} vertices")
 
-    mode_str = ("History DAG" if use_fast else "Walking") + " point location"
-    order_str = "randomized" if use_randomized else "ordered"
-    print(f"Mode: {mode_str}, {order_str} insertion")
-
     dt = DelaunayTriangulation()
 
     t0 = time.time()
@@ -65,15 +59,6 @@ def main():
     t1 = time.time()
 
     print(f"  {len(triangles)} triangles in {t1 - t0:.4f}s")
-
-    if args.verify:
-        ok, bad = dt.verify_delaunay()
-        if ok:
-            print("  Verification: PASSED (all edges satisfy Delaunay condition)")
-        else:
-            print(f"  Verification: FAILED ({len(bad)} bad edges)")
-            for b in bad[:5]:
-                print(f"    Edge ({b[0]},{b[1]}) violates InCircle with apex {b[2]}, opposite {b[3]}")
 
     coord_to_index = {p: idx for p, idx in zip(points, indices)}
     dedup_indices = [coord_to_index[p] for p in dt._points]
@@ -83,7 +68,6 @@ def main():
     ele_file = base + '.ele'
     write_ele_file(ele_file, triangles, point_to_index)
     print(f"Written: {ele_file}")
-
 
 if __name__ == '__main__':
     main()
