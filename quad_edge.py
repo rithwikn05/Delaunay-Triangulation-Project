@@ -5,13 +5,11 @@ class QuarterEdge:
         self.next = None
         self.data = None
 
-
 class EdgeRecord:
     __slots__ = ('q',)
 
     def __init__(self):
         self.q = [QuarterEdge() for _ in range(4)]
-
 
 class EdgeRef:
     __slots__ = ('_rec', '_r')
@@ -21,7 +19,6 @@ class EdgeRef:
         self._r = r & 3
 
     # Basic rotations
-
     @property
     def rot(self):
         return EdgeRef(self._rec, (self._r + 1) & 3)
@@ -87,7 +84,6 @@ class EdgeRef:
         return EdgeRef(mid._rec, (mid._r + 3) & 3)
 
     # Vertex data
-
     @property
     def org(self):
         return self._rec.q[self._r].data
@@ -105,7 +101,6 @@ class EdgeRef:
         self._rec.q[(self._r + 2) & 3].data = val
 
     # Face DAG data
-
     @property
     def left_face_data(self):
         return self._rec.q[(self._r + 1) & 3].data
@@ -130,7 +125,6 @@ class EdgeRef:
 
 
 # Topological primitives
-
 def make_edge():
     rec = EdgeRecord()
     e0 = EdgeRef(rec, 0)

@@ -16,19 +16,12 @@ def main():
     parser.add_argument('input', help='Input .node file')
 
     loc_group = parser.add_mutually_exclusive_group()
-    loc_group.add_argument('--slow', action='store_true',
-                           help='Walking point location (Guibas-Stolfi Section 10.3)')
-    loc_group.add_argument('--fast', action='store_true', default=True,
-                           help='History DAG point location (default)')
-
+    loc_group.add_argument('--slow', action='store_true')
+    loc_group.add_argument('--fast', action='store_true', default=True)
     order_group = parser.add_mutually_exclusive_group()
-    order_group.add_argument('--ordered', action='store_true',
-                             help='Insert vertices in file order')
-    order_group.add_argument('--randomized', action='store_true', default=True,
-                             help='Insert vertices in random order (default)')
-
-    parser.add_argument('--seed', type=int, default=None,
-                        help='Random seed for reproducibility')
+    order_group.add_argument('--ordered', action='store_true')
+    order_group.add_argument('--randomized', action='store_true', default=True)
+    parser.add_argument('--seed', type=int, default=None)
 
     args = parser.parse_args()
 

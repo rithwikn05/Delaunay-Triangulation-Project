@@ -53,10 +53,8 @@ def write_ele_file(filename, triangles, point_to_index):
             i2 = point_to_index[v2]
             f.write(f"{i}  {i0}  {i1}  {i2}\n")
 
-
 def build_point_index_map(points, indices):
     return {p: idx for p, idx in zip(points, indices)}
-
 
 def parse_node_filename(node_file):
     if node_file.endswith('.node'):

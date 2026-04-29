@@ -67,9 +67,9 @@ def incircle(pa, pb, pc, pd):
     if (det > errbound) or (-det > errbound):
         return det
 
-    return incircleexact(pa, pb, pc, pd)
+    return _incircle_exact(pa, pb, pc, pd)
 
-def incircleexact(pa, pb, pc, pd):
+def _incircle_exact(pa, pb, pc, pd):
     ax, ay = D(str(pa[0])), D(str(pa[1]))
     bx, by = D(str(pb[0])), D(str(pb[1]))
     cx, cy = D(str(pc[0])), D(str(pc[1]))
@@ -95,5 +95,6 @@ def right_of(x, e):
 def on_edge(x, e):
     if orient2d(x, e.org, e.dest) != 0: return False
     ox, oy, dx, dy, px, py = e.org[0], e.org[1], e.dest[0], e.dest[1], x[0], x[1]
-    if abs(ox-dx) > abs(oy-dy): return min(ox, dx) <= px <= max(ox, dx)
+    if abs(ox-dx) > abs(oy-dy): 
+            return min(ox, dx) <= px <= max(ox, dx)
     return min(oy, dy) <= py <= max(oy, dy)

@@ -35,11 +35,6 @@ class DelaunayTriangulation:
         return self._collect_triangles()
 
     def _set_face_data(self, edge_ref, node):
-        """
-        Set left_face_data on ALL four rotations of an edge record so that
-        no matter which orientation is encountered during traversal, the
-        correct DAG node is always found.
-        """
         curr = edge_ref
         for _ in range(3):
             curr._rec.q[(curr._r + 1) & 3].data = node
@@ -79,12 +74,12 @@ class DelaunayTriangulation:
         dag_depth = 0
         dag_status = 0
 
+        # The fast logic
         if self._fast and self.dag:
             leaf, dag_status = self.dag.locate(x)
             if leaf and leaf.edge_ref:
                 e = leaf.edge_ref
                 if e._r & 1: e = EdgeRef(e._rec, 0)
-            dag_depth = dag_status
 
         walk_steps = 0
         # The Walking Loop

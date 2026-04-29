@@ -78,8 +78,6 @@ class HistoryDAG:
                     found = True
                     break
             if not found:
-                # DEBUG: Print the parent and all children that failed the test
-                print(f"\n[DAG FAIL] Point {p} in Parent {node.vertices}")
                 for i, c in enumerate(node.children):
                     print(f"  Child {i} {c.vertices} -> CCW: {orient2d(*c.vertices) > 0}")
                 return node, -1
