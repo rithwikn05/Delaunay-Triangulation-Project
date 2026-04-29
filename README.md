@@ -4,6 +4,8 @@
 
 This project implements the **Incremental Insertion** algorithm for Delaunay Triangulation.
 
+![Delaunay Triangulation Zoom](spiral_triangulation.png)
+
 ### System Specifications
 * **CPU:** Intel i9 (8 cores)
 * **Language:** Python 3.x
